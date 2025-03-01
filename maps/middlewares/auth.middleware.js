@@ -50,16 +50,7 @@ module.exports.captainAuth = async (req, res, next) => {
         if (!token) {
             return res.status(401).json({ message: 'Unauthorized' });
         }
-        // const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        const response1 = await axios.post(`${process.env.BASE_URL}/captain/check-token`, {
-            
-            token: token
-        
-    });
-    if(response1.status === 400) {
-        return res.status(401).json({ message: 'Unauthorized' });
-    }
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
         const response = await axios.get(`${process.env.BASE_URL}/captain/profile`, {
             headers: {

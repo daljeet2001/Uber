@@ -1,8 +1,9 @@
 const captainController = require('../controllers/captain.controller');
 const express = require('express');
 const router = express.Router();
-const { body } = require("express-validator")
+const { body,validationResult } = require("express-validator")
 const authMiddleware = require('../middlewares/auth.middleware');
+const { isTokenBlacklisted } = require('../middlewares/auth.middleware');
 
 
 router.post('/register', [
@@ -30,5 +31,22 @@ router.get('/profile', authMiddleware.authCaptain, captainController.getCaptainP
 
 router.get('/logout', authMiddleware.authCaptain, captainController.logoutCaptain)
 
+router.post('/check-token', [
+    body('token').notEmpty().withMessage('Token is required')
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { token } = req.body;
+    const isBlacklisted = await isTokenBlacklisted(token);
+
+    if (isBlacklisted) {
+        return res.status(400).json({ message: 'Token is blacklisted' });
+    }
+
+    res.status(200).json({ message: 'Token is valid' });
+});
 
 module.exports = router;
