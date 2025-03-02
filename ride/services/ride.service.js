@@ -1,3 +1,4 @@
+const axios = require('axios');
 const rideModel = require('../../ride/models/ride.model');
 const mapService = require('../../maps/services/maps.service');
 const bcrypt = require('bcrypt');
@@ -10,6 +11,7 @@ async function getFare(pickup, destination) {
     }
 
     const distanceTime = await mapService.getDistanceTime(pickup, destination);
+    // console.log(distanceTime);
 
     const baseFare = {
         auto: 30,
@@ -53,6 +55,15 @@ function getOtp(num) {
     return generateOtp(num);
 }
 
+async function getUserDetails(userId) {
+    const response = await axios.get(`${process.env.BASE_URL}/user/${userId}`);
+    return response.data;
+}
+
+async function getCaptainDetails(captainId) {
+    const response = await axios.get(`${process.env.BASE_URL}/captain/${captainId}`);
+    return response.data;
+}
 
 module.exports.createRide = async ({
     user, pickup, destination, vehicleType
@@ -79,6 +90,7 @@ module.exports.createRide = async ({
 module.exports.confirmRide = async ({
     rideId, captain
 }) => {
+    // console.log(captain.captain._id);
     if (!rideId) {
         throw new Error('Ride id is required');
     }
@@ -87,16 +99,21 @@ module.exports.confirmRide = async ({
         _id: rideId
     }, {
         status: 'accepted',
-        captain: captain._id
-    })
+        captain: captain.captain._id
+    });
 
     const ride = await rideModel.findOne({
         _id: rideId
-    }).populate('user').populate('captain').select('+otp');
+    }).select('+otp');
 
     if (!ride) {
         throw new Error('Ride not found');
     }
+    // console.log(ride);
+
+
+    // ride.user = await getUserDetails(ride.user);
+    // ride.captain = await getCaptainDetails(ride.captain);
 
     return ride;
 
@@ -109,7 +126,7 @@ module.exports.startRide = async ({ rideId, otp, captain }) => {
 
     const ride = await rideModel.findOne({
         _id: rideId
-    }).populate('user').populate('captain').select('+otp');
+    }).select('+otp');
 
     if (!ride) {
         throw new Error('Ride not found');
@@ -127,7 +144,10 @@ module.exports.startRide = async ({ rideId, otp, captain }) => {
         _id: rideId
     }, {
         status: 'ongoing'
-    })
+    });
+
+    // ride.user = await getUserDetails(ride.user);
+    // ride.captain = await getCaptainDetails(ride.captain);
 
     return ride;
 }
@@ -136,11 +156,13 @@ module.exports.endRide = async ({ rideId, captain }) => {
     if (!rideId) {
         throw new Error('Ride id is required');
     }
-
+    // console.log(captain)
+    // console.log(rideId)
     const ride = await rideModel.findOne({
         _id: rideId,
-        captain: captain._id
-    }).populate('user').populate('captain').select('+otp');
+        captain: captain.captain._id
+    }).select('+otp');
+    console.log(ride);
 
     if (!ride) {
         throw new Error('Ride not found');
@@ -154,7 +176,10 @@ module.exports.endRide = async ({ rideId, captain }) => {
         _id: rideId
     }, {
         status: 'completed'
-    })
+    });
+
+    // ride.user = await getUserDetails(ride.user);
+    // ride.captain = await getCaptainDetails(ride.captain);
 
     return ride;
 }

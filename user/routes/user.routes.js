@@ -3,8 +3,9 @@ const router = express.Router();
 const { body, validationResult } = require("express-validator")
 const userController = require('../controllers/user.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
-// const blacklistTokenModel = require('../models/blacklistToken.model');
 const { isTokenBlacklisted } = require('../middlewares/auth.middleware');
+const userModel = require('../models/user.model');
+
 
 router.post('/register', [
     body('email').isEmail().withMessage('Invalid Email'),
@@ -42,5 +43,19 @@ router.post('/check-token', [
 router.get('/profile', authMiddleware.authUser, userController.getUserProfile)
 
 router.get('/logout', authMiddleware.authUser, userController.logoutUser)
+
+router.get('/:userId', async (req, res) => {
+    try {
+        const user = await userModel.findById(req.params.userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json(user);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+
 
 module.exports = router;

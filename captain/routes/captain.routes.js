@@ -1,10 +1,10 @@
 const captainController = require('../controllers/captain.controller');
 const express = require('express');
 const router = express.Router();
-const { body,validationResult } = require("express-validator")
+const { body, validationResult } = require("express-validator")
 const authMiddleware = require('../middlewares/auth.middleware');
 const { isTokenBlacklisted } = require('../middlewares/auth.middleware');
-
+const captainModel = require('../models/captain.model');
 
 router.post('/register', [
     body('email').isEmail().withMessage('Invalid Email'),
@@ -13,11 +13,10 @@ router.post('/register', [
     body('vehicle.color').isLength({ min: 3 }).withMessage('Color must be at least 3 characters long'),
     body('vehicle.plate').isLength({ min: 3 }).withMessage('Plate must be at least 3 characters long'),
     body('vehicle.capacity').isInt({ min: 1 }).withMessage('Capacity must be at least 1'),
-    body('vehicle.vehicleType').isIn([ 'car', 'motorcycle', 'auto' ]).withMessage('Invalid vehicle type')
+    body('vehicle.vehicleType').isIn(['car', 'motorcycle', 'auto']).withMessage('Invalid vehicle type')
 ],
     captainController.registerCaptain
 )
-
 
 router.post('/login', [
     body('email').isEmail().withMessage('Invalid Email'),
@@ -25,7 +24,6 @@ router.post('/login', [
 ],
     captainController.loginCaptain
 )
-
 
 router.get('/profile', authMiddleware.authCaptain, captainController.getCaptainProfile)
 
@@ -47,6 +45,18 @@ router.post('/check-token', [
     }
 
     res.status(200).json({ message: 'Token is valid' });
+});
+
+router.get('/:captainId', async (req, res) => {
+    try {
+        const captain = await captainModel.findById(req.params.captainId);
+        if (!captain) {
+            return res.status(404).json({ message: 'Captain not found' });
+        }
+        res.status(200).json(captain);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
 module.exports = router;
