@@ -47,6 +47,8 @@ router.post('/check-token', [
     res.status(200).json({ message: 'Token is valid' });
 });
 
+router.get('/captains-in-radius', captainController.getCaptainsInTheRadius);
+
 router.get('/:captainId', async (req, res) => {
     try {
         const captain = await captainModel.findById(req.params.captainId);
@@ -58,5 +60,7 @@ router.get('/:captainId', async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
+
+
 
 module.exports = router;

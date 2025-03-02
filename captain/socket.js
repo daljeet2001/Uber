@@ -1,5 +1,5 @@
 const socketIo = require('socket.io');
-const userModel = require('../user/models/user.model');
+// const userModel = require('../user/models/user.model');
 const captainModel = require('./models/captain.model');
 
 let io;
@@ -19,9 +19,7 @@ function initializeSocket(server) {
         socket.on('join', async (data) => {
             const { userId, userType } = data;
 
-            if (userType === 'user') {
-                await userModel.findByIdAndUpdate(userId, { socketId: socket.id });
-            } else if (userType === 'captain') {
+            if (userType === 'captain') {
                 await captainModel.findByIdAndUpdate(userId, { socketId: socket.id });
             }
         });

@@ -79,3 +79,27 @@ module.exports.logoutCaptain = async (req, res, next) => {
 
     res.status(200).json({ message: 'Logout successfully' });
 }
+
+module.exports.getCaptainsInTheRadius = async (req, res) => {
+    const { ltd, lng, radius } = req.query;
+
+    if (!ltd || !lng || !radius) {
+        return res.status(400).send('Latitude, longitude, and radius are required');
+    }
+    // console.log('ltd', ltd, 'lng', lng, 'radius', radius);
+    //        res.status(200).send('ok');
+
+    try {
+        const captains = await captainModel.find({
+            location: {
+                $geoWithin: {
+                    $centerSphere: [[ltd, lng], radius / 6371]
+                }
+            }
+        });
+        res.json(captains);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+};

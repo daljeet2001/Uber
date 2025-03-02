@@ -4,7 +4,6 @@ const mapService = require('../../maps/services/maps.service');
 const { sendMessageToSocketId } = require('../socket');
 const rideModel = require('../models/ride.model');
 
-
 module.exports.createRide = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -19,30 +18,23 @@ module.exports.createRide = async (req, res) => {
 
         const pickupCoordinates = await mapService.getAddressCoordinate(pickup);
 
-
-
         const captainsInRadius = await mapService.getCaptainsInTheRadius(pickupCoordinates.ltd, pickupCoordinates.lng, 2);
-       
 
         ride.otp = ""
 
-        const rideWithUser = await rideModel.findOne({ _id: ride._id }).populate('user');
+        const rideWithUser = await rideModel.findOne({ _id: ride._id });
 
         captainsInRadius.map(captain => {
-
             sendMessageToSocketId(captain.socketId, {
                 event: 'new-ride',
                 data: rideWithUser
-            })
-
-        })
+            });
+        });
 
     } catch (err) {
-
         console.log(err);
         return res.status(500).json({ message: err.message });
     }
-
 };
 
 module.exports.getFare = async (req, res) => {
