@@ -10,7 +10,8 @@ const RidePopUp = (props) => {
             <div className='flex items-center justify-between p-3 bg-yellow-400 rounded-lg mt-4'>
                 <div className='flex items-center gap-3 '>
                     <img className='h-12 rounded-full object-cover w-12' src="https://thumbs.dreamstime.com/b/man-poses-photo-outside-his-village-near-bhadarsa-bhadarsa-uttar-pradesh-india-april-man-poses-photo-outside-144072831.jpg" alt="" />
-                    <h2 className='text-lg font-medium'>{props.ride?.user.fullname.firstname + " " + props.ride?.user.fullname.lastname}</h2>
+                    {/* <h2 className='text-lg font-medium'>{props.ride?.user.fullname.firstname + " " + props.ride?.user.fullname.lastname} </h2> */}
+                     <h2 className='text-lg font-medium'>Harpreet kaur</h2>
                 </div>
                 <h5 className='text-lg font-semibold'>2.2 KM</h5>
             </div>

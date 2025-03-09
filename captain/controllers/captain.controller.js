@@ -2,6 +2,9 @@ const captainModel = require('../models/captain.model');
 const captainService = require('../services/captain.service');
 const blackListTokenModel = require('../models/blackListToken.model');
 const { validationResult } = require('express-validator');
+const {subscribeToQueue} = require('../services/rabbit');
+const mapService = require('../../maps/services/maps.service');
+const {sendMessageToSocketId} = require('../socket.js');
 
 
 module.exports.registerCaptain = async (req, res, next) => {
@@ -80,26 +83,47 @@ module.exports.logoutCaptain = async (req, res, next) => {
     res.status(200).json({ message: 'Logout successfully' });
 }
 
-module.exports.getCaptainsInTheRadius = async (req, res) => {
-    const { ltd, lng, radius } = req.query;
+// module.exports.getCaptainsInTheRadius = async (req, res) => {
+//     const { ltd, lng, radius } = req.query;
 
-    if (!ltd || !lng || !radius) {
-        return res.status(400).send('Latitude, longitude, and radius are required');
-    }
-    // console.log('ltd', ltd, 'lng', lng, 'radius', radius);
-    //        res.status(200).send('ok');
+//     if (!ltd || !lng || !radius) {
+//         return res.status(400).send('Latitude, longitude, and radius are required');
+//     }
+//     // console.log('ltd', ltd, 'lng', lng, 'radius', radius);
+//     //        res.status(200).send('ok');
 
-    try {
-        const captains = await captainModel.find({
-            location: {
-                $geoWithin: {
-                    $centerSphere: [[ltd, lng], radius / 6371]
-                }
-            }
+//     try {
+//         const captains = await captainModel.find({
+//             location: {
+//                 $geoWithin: {
+//                     $centerSphere: [[ltd, lng], radius / 6371]
+//                 }
+//             }
+//         });
+//         res.json(captains);
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('Internal Server Error');
+//     }
+// };
+
+subscribeToQueue('new-ride', async (ride) => {
+    const jsonride=JSON.parse(ride);
+    console.log(jsonride);
+  
+    const pickupCoordinates = await mapService.getAddressCoordinate(jsonride.pickup);  
+    console.log(pickupCoordinates);
+    const captainsInRadius = await captainService.getCaptainsInTheRadius({
+       ltd:pickupCoordinates.ltd, 
+       lng:pickupCoordinates.lng,
+       radius:2
+});
+    console.log(captainsInRadius);
+
+    captainsInRadius.map(captain => {
+        sendMessageToSocketId(captain.socketId, {
+            event: 'new-ride',
+            data: jsonride
         });
-        res.json(captains);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Internal Server Error');
-    }
-};
+    });
+});

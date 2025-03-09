@@ -47,7 +47,7 @@ router.post('/check-token', [
     res.status(200).json({ message: 'Token is valid' });
 });
 
-router.get('/captains-in-radius', captainController.getCaptainsInTheRadius);
+// router.get('/captains-in-radius', captainController.getCaptainsInTheRadius);
 
 router.get('/:captainId', async (req, res) => {
     try {

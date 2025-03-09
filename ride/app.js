@@ -5,9 +5,12 @@ const cors=require('cors');
 const connectDB=require('./db/db');
 
 
+
 // const mapRoutes=require('./routes/maps.routes');
 const rideRoutes=require('./routes/ride.routes');
 const cookieParser = require('cookie-parser');
+const rabbitmq=require('./services/rabbit');
+rabbitmq.connect();
 
 
 

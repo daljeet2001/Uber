@@ -29,6 +29,12 @@ const CaptainHome = () => {
             userType: 'captain'
         });
 
+        captainSocket.on('new-ride', (data) => {
+            console.log('New ride received from captain socket:', data);
+            setRide(data);
+            setRidePopupPanel(true);
+        });
+
   
         const updateLocation = () => {
             if (navigator.geolocation) {
@@ -50,17 +56,7 @@ const CaptainHome = () => {
         return () => clearInterval(locationInterval);
     }, [captainSocket, captain._id]);
 
-    useEffect(() => {
-        rideSocket.on('new-ride', (data) => {
-            console.log('New ride received from ride socket:', data);
-            setRide(data);
-            setRidePopupPanel(true);
-        });
-
-        return () => {
-            rideSocket.off('new-ride');
-        };
-    }, [rideSocket]);
+  
 
     async function confirmRide() {
         const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/ride/confirm`, {

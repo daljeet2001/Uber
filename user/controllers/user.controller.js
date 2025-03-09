@@ -2,6 +2,9 @@ const userModel = require('../models/user.model');
 const userService = require('../services/user.service');
 const { validationResult } = require('express-validator');
 const blackListTokenModel = require('../models/blackListToken.model');
+const {subscribeToQueue} = require('../services/rabbit');
+const {sendMessageToSocketId} = require('../socket.js');
+
 
 module.exports.registerUser = async (req, res, next) => {
 
@@ -78,3 +81,44 @@ module.exports.logoutUser = async (req, res, next) => {
     res.status(200).json({ message: 'Logged out' });
 
 }
+subscribeToQueue('ride-confirmed', async (ride) => {
+    const jsonride=JSON.parse(ride);
+    console.log(jsonride);
+
+    const User = await userModel.findById(jsonride.user);
+    console.log(User);
+
+        sendMessageToSocketId(User.socketId, {
+            event: 'ride-confirmed',
+            data: jsonride
+        });
+    
+});
+
+subscribeToQueue('ride-started', async (ride) => {
+    const jsonride=JSON.parse(ride);
+    console.log(jsonride);
+
+    const User = await userModel.findById(jsonride.user);
+    console.log(User);
+
+        sendMessageToSocketId(User.socketId, {
+            event: 'ride-started',
+            data: jsonride
+        });
+    
+});
+
+subscribeToQueue('ride-ended', async (ride) => {
+    const jsonride=JSON.parse(ride);
+    console.log(jsonride);
+
+    const User = await userModel.findById(jsonride.user);
+    console.log(User);
+
+        sendMessageToSocketId(User.socketId, {
+            event: 'ride-ended',
+            data: jsonride
+        });
+    
+});

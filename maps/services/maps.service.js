@@ -73,14 +73,15 @@ module.exports.getAutoCompleteSuggestions = async (input) => {
     }
 }
 
-module.exports.getCaptainsInTheRadius = async (ltd, lng, radius) => {
-    const url = `${process.env.BASE_URL}/captain/captains-in-radius?ltd=${ltd}&lng=${lng}&radius=${radius}`;
+// module.exports.getCaptainsInTheRadius = async (ltd, lng, radius) => {
+//     const url = `${process.env.BASE_URL}/captain/captains-in-radius?ltd=${ltd}&lng=${lng}&radius=${radius}`;
+   
 
-    try {
-        const response = await axios.get(url);
-        return response.data;
-    } catch (error) {
-        console.error(error);
-        throw error;
-    }
-};
+//     try {
+//         const response = await axios.get(url);
+//         return response.data;
+//     } catch (error) {
+//         console.error(error);
+//         throw error;
+//     }
+// };

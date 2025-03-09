@@ -8,10 +8,10 @@ import LiveTracking from '../components/LiveTracking'
 const Riding = () => {
     const location = useLocation()
     const { ride } = location.state || {} // Retrieve ride data
-    const { socket } = useContext(SocketContext)
+    const { userSocket } = useContext(SocketContext)
     const navigate = useNavigate()
 
-    socket.on("ride-ended", () => {
+    userSocket.on("ride-ended", () => {
         navigate('/home')
     })
 
@@ -29,8 +29,10 @@ const Riding = () => {
                 <div className='flex items-center justify-between'>
                     <img className='h-12' src="https://swyft.pl/wp-content/uploads/2023/05/how-many-people-can-a-uberx-take.jpg" alt="" />
                     <div className='text-right'>
-                        <h2 className='text-lg font-medium capitalize'>{ride?.captain.fullname.firstname}</h2>
-                        <h4 className='text-xl font-semibold -mt-1 -mb-1'>{ride?.captain.vehicle.plate}</h4>
+                        {/* <h2 className='text-lg font-medium capitalize'>{ride?.captain.fullname.firstname}</h2> */}
+                        <h2 className='text-lg font-medium capitalize'>Daljeet Singh</h2>
+                        {/* <h4 className='text-xl font-semibold -mt-1 -mb-1'>{ride?.captain.vehicle.plate}</h4> */}
+                        <h4 className='text-xl font-semibold -mt-1 -mb-1'>PB14D7984</h4>
                         <p className='text-sm text-gray-600'>Maruti Suzuki Alto</p>
 
                     </div>
